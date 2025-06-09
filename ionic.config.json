@@ -1,0 +1,7 @@
+{
+  "name": "PatinaPRO",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
