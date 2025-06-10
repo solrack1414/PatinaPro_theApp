@@ -1,0 +1,62 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title>
+      <img src="assets/iconopatines.png" alt="logo" style="height: 24px; vertical-align: middle; margin-right: 8px;">
+      PatinaPRO
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <form [formGroup]="registroForm">
+    <ion-item>
+      <ion-label position="floating">Usuario</ion-label>
+      <ion-input formControlName="usuario"></ion-input>
+    </ion-item>
+    <ion-note color="danger" *ngIf="usuario.invalid && usuario.touched">
+      El usuario debe tener entre 3 y 8 caracteres alfanuméricos.
+    </ion-note>
+
+    <ion-item>
+      <ion-label position="floating">Contraseña</ion-label>
+      <ion-input
+        type="password"
+        formControlName="password"
+        inputmode="numeric"
+        maxlength="4"
+      ></ion-input>
+    </ion-item>
+    <ion-note color="danger" *ngIf="password.invalid && password.touched">
+      La contraseña debe tener 4 dígitos numéricos.
+    </ion-note>
+
+    <ion-item>
+      <ion-label position="floating">Repetir Contraseña</ion-label>
+      <ion-input
+        type="password"
+        formControlName="confirmPassword"
+        inputmode="numeric"
+        maxlength="4"
+      ></ion-input>
+    </ion-item>
+    <ion-note color="danger" *ngIf="confirmPassword.invalid && confirmPassword.touched">
+      Las contraseñas deben coincidir.
+    </ion-note>
+
+    <ion-item>
+      <ion-label position="floating">Correo electrónico</ion-label>
+      <ion-input type="email" formControlName="correo"></ion-input>
+    </ion-item>
+    <ion-note color="danger" *ngIf="correo.invalid && correo.touched">
+      Debe ingresar un correo válido.
+    </ion-note>
+
+    <ion-button expand="block" color="success" (click)="validarRegistro()">
+      Validar
+    </ion-button>
+
+    <ion-button expand="block" fill="outline" color="medium" routerLink="/login">
+      Volver al Login
+    </ion-button>
+  </form>
+</ion-content>

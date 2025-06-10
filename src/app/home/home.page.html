@@ -1,20 +1,50 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Blank
+      <img src="assets/iconopatines.png" alt="logo" style="height: 24px; vertical-align: middle; margin-right: 8px;">
+      Patina PRO
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+  <h2>Bienvenido, {{ usuario }}</h2>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+  <form [formGroup]="infoForm" (ngSubmit)="onSubmit()">
+    <ion-item>
+      <ion-label position="floating">Nombre</ion-label>
+      <ion-input #nombreInput formControlName="nombre"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Apellido</ion-label>
+      <ion-input #apellidoInput formControlName="apellido"></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label position="floating">Nivel de patinaje que deseas aprender</ion-label>
+      <ion-select formControlName="nivelEducacion">
+        <ion-select-option value="Educación Básica">Principiante</ion-select-option>
+        <ion-select-option value="Educación Media">Intermedio</ion-select-option>
+        <ion-select-option value="Educación Técnica">Avanzado</ion-select-option>
+        <ion-select-option value="Educación Universitaria">Profesional</ion-select-option>
+      </ion-select>
+    </ion-item>
+
+    <!-- Fecha Nacimiento con Angular Material -->
+    <mat-form-field appearance="fill" style="width: 100%; margin-top: 16px;">
+      <mat-label>Fecha de nacimiento</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="fechaNacimiento" placeholder="Seleccione fecha" />
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <ion-button type="submit" expand="block" color="dark" [disabled]="infoForm.invalid">Guardar</ion-button>
+    <ion-button type="button" expand="block" color="medium" (click)="onCancelar()">Cancelar</ion-button>
+  </form>
+  <div style="text-align: center; margin-top: 24px;">
+    <img src="assets/frameseba.jpg" alt="Imagen inferior"
+        style="width: 350px; height: auto; border: 2px solid #333; border-radius: 12px;">
   </div>
 </ion-content>
+
