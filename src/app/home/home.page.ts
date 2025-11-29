@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
 export class HomePage implements OnInit, AfterViewInit {
   usuario: string = '';
   infoForm: FormGroup;
+  isLoading: boolean = false;
 
   @ViewChild('nombreInput', { static: false }) nombreInput!: IonInput;
   @ViewChild('apellidoInput', { static: false }) apellidoInput!: IonInput;
@@ -45,27 +46,36 @@ export class HomePage implements OnInit, AfterViewInit {
   }
 
   async onSubmit() {
-    if (this.infoForm.valid) {
-      const datos = this.infoForm.value;
-      console.log('Datos guardados:', datos);
+    if (this.infoForm.valid && !this.isLoading) {
+      this.isLoading = true;
+      
+      // Simular guardado por 2 segundos
+      setTimeout(async () => {
+        const datos = this.infoForm.value;
+        console.log('Datos guardados:', datos);
 
-      // Mostrar alerta confirmando nombre y apellido
-      const alert = await this.alertController.create({
-        header: 'Datos guardados',
-        message: `Nombre: ${datos.nombre}\nApellido: ${datos.apellido}`,
-        buttons: [{
-          text: 'OK',
-          handler: () => {
-            // Navegar a Menu después de cerrar alerta
-            this.router.navigate(['/menu']);
-          }
-        }]
-      });
-      await alert.present();
+        // Mostrar alerta confirmando nombre y apellido
+        const alert = await this.alertController.create({
+          header: 'Datos guardados',
+          message: `Nombre: ${datos.nombre}\nApellido: ${datos.apellido}`,
+          buttons: [{
+            text: 'OK',
+            handler: () => {
+              // Navegar a Menu después de cerrar alerta
+              this.router.navigate(['/menu']);
+            }
+          }]
+        });
+        
+        await alert.present();
+        this.isLoading = false;
+      }, 2000);
     }
   }
 
   async onCancelar() {
+    if (this.isLoading) return;
+    
     this.infoForm.reset();
 
     if (this.nombreInput) {

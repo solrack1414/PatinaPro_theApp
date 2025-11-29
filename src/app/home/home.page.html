@@ -1,4 +1,4 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" class="skate-theme">
   <ion-toolbar>
     <ion-title>
       <img src="assets/iconopatines.png" alt="logo" style="height: 24px; vertical-align: middle; margin-right: 8px;">
@@ -8,43 +8,61 @@
 </ion-header>
 
 <ion-content class="ion-padding">
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="spinner-container">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p style="text-align: center; margin-top: 10px; color: #333; font-weight: 500;">Guardando información...</p>
+    </div>
+  </div>
+
   <h2>Bienvenido, {{ usuario }}</h2>
 
   <form [formGroup]="infoForm" (ngSubmit)="onSubmit()">
-    <ion-item>
-      <ion-label position="floating">Nombre</ion-label>
-      <ion-input #nombreInput formControlName="nombre"></ion-input>
-    </ion-item>
+    <ion-card color="light">
+      <ion-card-content>
+        <ion-item>
+          <ion-label position="floating">Nombre</ion-label>
+          <ion-input #nombreInput formControlName="nombre"></ion-input>
+        </ion-item>
 
-    <ion-item>
-      <ion-label position="floating">Apellido</ion-label>
-      <ion-input #apellidoInput formControlName="apellido"></ion-input>
-    </ion-item>
+        <ion-item>
+          <ion-label position="floating">Apellido</ion-label>
+          <ion-input #apellidoInput formControlName="apellido"></ion-input>
+        </ion-item>
 
-    <ion-item>
-      <ion-label position="floating">Nivel de patinaje que deseas aprender</ion-label>
-      <ion-select formControlName="nivelEducacion">
-        <ion-select-option value="Educación Básica">Principiante</ion-select-option>
-        <ion-select-option value="Educación Media">Intermedio</ion-select-option>
-        <ion-select-option value="Educación Técnica">Avanzado</ion-select-option>
-        <ion-select-option value="Educación Universitaria">Profesional</ion-select-option>
-      </ion-select>
-    </ion-item>
+        <ion-item>
+          <ion-label position="floating">Nivel de patinaje que deseas aprender</ion-label>
+          <ion-select formControlName="nivelEducacion">
+            <ion-select-option value="Principiante">Principiante</ion-select-option>
+            <ion-select-option value="Intermedio">Intermedio</ion-select-option>
+            <ion-select-option value="Avanzado">Avanzado</ion-select-option>
+            <ion-select-option value="Profesional">Profesional</ion-select-option>
+          </ion-select>
+        </ion-item>
 
-    <!-- Fecha Nacimiento con Angular Material -->
-    <mat-form-field appearance="fill" style="width: 100%; margin-top: 16px;">
-      <mat-label>Fecha de nacimiento</mat-label>
-      <input matInput [matDatepicker]="picker" formControlName="fechaNacimiento" placeholder="Seleccione fecha" />
-      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-      <mat-datepicker #picker></mat-datepicker>
-    </mat-form-field>
+        <!-- Fecha Nacimiento con Ionic -->
+        <ion-item>
+          <ion-label position="floating">Fecha de nacimiento</ion-label>
+          <ion-datetime 
+            formControlName="fechaNacimiento" 
+            placeholder="Seleccione fecha"
+            presentation="date"
+          ></ion-datetime>
+        </ion-item>
+      </ion-card-content>
+    </ion-card>
 
-    <ion-button type="submit" expand="block" color="dark" [disabled]="infoForm.invalid">Guardar</ion-button>
-    <ion-button type="button" expand="block" color="medium" (click)="onCancelar()">Cancelar</ion-button>
+    <ion-button type="submit" expand="block" color="dark" [disabled]="infoForm.invalid || isLoading">
+      <span *ngIf="!isLoading">Guardar</span>
+      <ion-spinner *ngIf="isLoading" name="crescent" style="width: 20px; height: 20px;"></ion-spinner>
+    </ion-button>
+    <ion-button type="button" expand="block" color="medium" (click)="onCancelar()" [disabled]="isLoading">
+      Cancelar
+    </ion-button>
   </form>
-  <div style="text-align: center; margin-top: 24px;">
-    <img src="assets/frameseba.jpg" alt="Imagen inferior"
-        style="width: 350px; height: auto; border: 2px solid #333; border-radius: 12px;">
+
+  <div class="image-container">
+    <img src="assets/frameseba.jpg" alt="Imagen inferior">
   </div>
 </ion-content>
-

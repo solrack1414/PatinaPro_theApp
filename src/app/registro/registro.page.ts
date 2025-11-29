@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 
@@ -7,10 +7,11 @@ import { Router } from '@angular/router';
   selector: 'app-registro',
   templateUrl: './registro.page.html',
   styleUrls: ['./registro.page.scss'],
-  standalone: false, // Indica que este componente no es independiente
+  standalone: false,
 })
 export class RegistroPage {
   registroForm: FormGroup;
+  isLoading: boolean = false;
 
   constructor(
     private fb: FormBuilder,
@@ -22,7 +23,7 @@ export class RegistroPage {
       password: ['', [Validators.required, Validators.pattern(/^\d{4}$/)]],
       confirmPassword: ['', Validators.required],
       correo: ['', [Validators.required, Validators.email]],
-    });
+    }, { validators: this.passwordMatchValidator });
   }
 
   get usuario() {
@@ -41,8 +42,15 @@ export class RegistroPage {
     return this.registroForm.get('correo')!;
   }
 
+  passwordMatchValidator(control: AbstractControl) {
+    const password = control.get('password')?.value;
+    const confirmPassword = control.get('confirmPassword')?.value;
+    return password === confirmPassword ? null : { mismatch: true };
+  }
+
   async validarRegistro() {
-    if (this.registroForm.valid) {
+    if (this.registroForm.valid && !this.isLoading) {
+      
       if (this.password.value !== this.confirmPassword.value) {
         const alert = await this.alertCtrl.create({
           header: 'Error',
@@ -53,14 +61,21 @@ export class RegistroPage {
         return;
       }
 
-      const alert = await this.alertCtrl.create({
-        header: 'Registro exitoso',
-        message: '¡Cuenta creada con éxito!',
-        buttons: ['OK'],
-      });
-      await alert.present();
+      this.isLoading = true;
 
-      this.router.navigate(['/home']);
+      // Simular validación por 2 segundos
+      setTimeout(async () => {
+        const alert = await this.alertCtrl.create({
+          header: 'Registro exitoso',
+          message: '¡Cuenta creada con éxito!',
+          buttons: ['OK'],
+        });
+        await alert.present();
+
+        this.router.navigate(['/home']);
+        this.isLoading = false;
+      }, 2000);
+      
     } else {
       const alert = await this.alertCtrl.create({
         header: 'Formulario incompleto',
@@ -71,4 +86,3 @@ export class RegistroPage {
     }
   }
 }
-

@@ -1,4 +1,4 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" class="skate-theme">
   <ion-toolbar>
     <ion-title>
       <img src="assets/iconopatines.png" alt="logo" style="height: 24px; vertical-align: middle; margin-right: 8px;">
@@ -9,11 +9,18 @@
 
 <ion-content class="ion-padding content-login">
   
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="spinner-container">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p style="text-align: center; margin-top: 10px; color: #333; font-weight: 500;">Iniciando sesión...</p>
+    </div>
+  </div>
 
   <!-- Formulario -->
   <ion-card color="light">
     <ion-card-header>
-      <ion-card-title class="ion-text-center">Bienvenido</ion-card-title>
+      <ion-card-title class="ion-text-center">¡Bienvenido a PatinaPRO!</ion-card-title>
     </ion-card-header>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
@@ -39,8 +46,14 @@
         La contraseña debe tener exactamente 4 dígitos numéricos.
       </ion-note>
 
-      <ion-button expand="block" type="submit" color="dark" [disabled]="loginForm.invalid">
-        Ingresar
+      <ion-button 
+        expand="block" 
+        type="submit" 
+        color="dark" 
+        [disabled]="loginForm.invalid || isLoading"
+      >
+        <span *ngIf="!isLoading">Ingresar</span>
+        <ion-spinner *ngIf="isLoading" name="crescent" style="width: 20px; height: 20px;"></ion-spinner>
       </ion-button>
     </form>
 
@@ -48,14 +61,15 @@
 
   <!-- Enlace a registro -->
   <div class="ion-text-center ion-margin-top">
-    <ion-text color="medium">
+    <ion-text color="light">
       <p>¿No tienes una cuenta?</p>
     </ion-text>
     <ion-button
       expand="block"
       fill="clear"
-      color="primary"
+      color="light"
       routerLink="/registro"
+      [disabled]="isLoading"
     >
       ¡Créala ahora gratis!
     </ion-button>

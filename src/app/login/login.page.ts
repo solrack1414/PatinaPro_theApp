@@ -6,10 +6,11 @@ import { NavController } from '@ionic/angular';
   selector: 'app-login',
   templateUrl: './login.page.html',
   styleUrls: ['./login.page.scss'],
-  standalone: false, // Indica que este componente no es independiente
+  standalone: false,
 })
 export class LoginPage {
   loginForm: FormGroup;
+  isLoading: boolean = false;
 
   constructor(private fb: FormBuilder, private navCtrl: NavController) {
     this.loginForm = this.fb.group({
@@ -32,13 +33,18 @@ export class LoginPage {
     return this.loginForm.get('password')!;
   }
 
-  onSubmit() {
-    if (this.loginForm.valid) {
+  async onSubmit() {
+    if (this.loginForm.valid && !this.isLoading) {
+      this.isLoading = true;
       const datos = this.loginForm.value;
-      // Navegar a la página Home pasando los datos por queryParams
-      this.navCtrl.navigateRoot('/home', {
-        queryParams: { usuario: datos.usuario, password: datos.password },
-      });
+      
+      // Simular carga de 2 segundos
+      setTimeout(() => {
+        this.navCtrl.navigateRoot('/home', {
+          queryParams: { usuario: datos.usuario, password: datos.password },
+        });
+        this.isLoading = false;
+      }, 2000);
     }
   }
 }
