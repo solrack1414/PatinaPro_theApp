@@ -1,0 +1,99 @@
+ion-content {
+  --background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+
+  h2 {
+    color: white;
+    text-align: center;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .description {
+    color: rgba(255, 255, 255, 0.9);
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  ion-list {
+    background: transparent;
+    margin-bottom: 20px;
+
+    ion-item {
+      --background: rgba(255, 255, 255, 0.95);
+      --border-radius: 12px;
+      margin-bottom: 10px;
+      border: none;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+
+      &.selected {
+        --background: rgba(var(--ion-color-primary-rgb), 0.1);
+        border: 2px solid var(--ion-color-primary);
+      }
+
+      h3 {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+      }
+
+      p {
+        margin: 2px 0;
+        color: #666;
+        font-size: 0.9em;
+      }
+    }
+  }
+
+  .map-container {
+    margin: 20px 0;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+
+    .map {
+      height: 300px;
+      width: 100%;
+    }
+  }
+
+  ion-card {
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.95);
+
+    ion-card-header {
+      padding-bottom: 0;
+
+      ion-card-title {
+        color: #333;
+        font-weight: 700;
+      }
+    }
+
+    ion-card-content {
+      p {
+        margin: 8px 0;
+        color: #666;
+      }
+    }
+  }
+}
+
+// Estilos para Leaflet
+:host ::ng-deep {
+  .leaflet-container {
+    background: #f8f9fa;
+  }
+
+  .leaflet-popup-content {
+    font-family: inherit;
+    
+    b {
+      color: #333;
+    }
+  }
+}

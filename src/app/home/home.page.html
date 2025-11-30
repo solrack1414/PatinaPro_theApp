@@ -1,12 +1,3 @@
-<ion-header [translucent]="true" class="skate-theme">
-  <ion-toolbar>
-    <ion-title>
-      <img src="assets/iconopatines.png" alt="logo" style="height: 24px; vertical-align: middle; margin-right: 8px;">
-      Patina PRO
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
-
 <ion-content class="ion-padding">
   <!-- Loading Overlay -->
   <div class="loading-overlay" *ngIf="isLoading">
@@ -41,7 +32,7 @@
           </ion-select>
         </ion-item>
 
-        <!-- Fecha Nacimiento con Ionic -->
+        <!-- Fecha Nacimiento -->
         <ion-item>
           <ion-label position="floating">Fecha de nacimiento</ion-label>
           <ion-datetime 
@@ -52,12 +43,42 @@
           ></ion-datetime>
         </ion-item>
 
-        <!-- 🔥 NUEVO: Mostrar fecha seleccionada -->
+        <!-- Mostrar fecha seleccionada -->
         <div *ngIf="infoForm.get('fechaNacimiento')?.value" class="fecha-seleccionada">
           <ion-text color="primary">
             <p><strong>Fecha seleccionada:</strong> {{ formatFecha(infoForm.get('fechaNacimiento')?.value) }}</p>
           </ion-text>
         </div>
+
+        <!-- 🔥 NUEVA SECCIÓN: CÁMARA -->
+        <div class="camera-section">
+          <ion-item>
+            <ion-label position="stacked">Foto de perfil (Opcional)</ion-label>
+            <div class="camera-buttons">
+              <ion-button expand="block" color="primary" (click)="tomarFoto()" [disabled]="isLoading">
+                <ion-icon name="camera" slot="start"></ion-icon>
+                Tomar Foto
+              </ion-button>
+              <ion-button expand="block" color="medium" (click)="seleccionarFoto()" [disabled]="isLoading" fill="outline">
+                <ion-icon name="image" slot="start"></ion-icon>
+                Seleccionar de Galería
+              </ion-button>
+            </div>
+          </ion-item>
+
+          <!-- Vista previa de la foto -->
+          <div *ngIf="fotoBase64" class="foto-preview">
+            <ion-text color="medium">
+              <p><strong>Vista previa:</strong></p>
+            </ion-text>
+            <img [src]="fotoBase64" alt="Foto de perfil" class="foto-img">
+            <ion-button expand="block" color="danger" size="small" (click)="eliminarFoto()">
+              <ion-icon name="trash" slot="start"></ion-icon>
+              Eliminar Foto
+            </ion-button>
+          </div>
+        </div>
+
       </ion-card-content>
     </ion-card>
 

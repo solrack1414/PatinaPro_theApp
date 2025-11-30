@@ -146,3 +146,44 @@ ion-content {
     background-color: rgba(255, 255, 255, 0.9);
   }
 }
+
+// 🔥 ESTILOS PARA LA SECCIÓN DE CÁMARA
+.camera-section {
+  margin-top: 20px;
+  padding: 15px;
+  background: rgba(var(--ion-color-light-rgb), 0.5);
+  border-radius: 12px;
+  border: 2px dashed var(--ion-color-medium);
+
+  .camera-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+
+    ion-button {
+      margin: 0;
+    }
+  }
+
+  .foto-preview {
+    margin-top: 15px;
+    text-align: center;
+    padding: 15px;
+    background: rgba(var(--ion-color-primary-rgb), 0.1);
+    border-radius: 10px;
+
+    .foto-img {
+      max-width: 200px;
+      max-height: 200px;
+      border-radius: 10px;
+      border: 3px solid var(--ion-color-primary);
+      margin: 10px 0;
+    }
+
+    ion-button {
+      margin-top: 10px;
+      --border-radius: 8px;
+    }
+  }
+}

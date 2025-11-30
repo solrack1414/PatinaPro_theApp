@@ -1,10 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { IonInput } from '@ionic/angular';
 import { AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { ApiService } from '../services/api.service';
-import { lastValueFrom } from 'rxjs'; // 🔥 IMPORTAR lastValueFrom
+import { lastValueFrom } from 'rxjs';
+
+// 🔥 IMPORTAR PLUGINS DE CAPACITOR
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 
 @Component({
   selector: 'app-home',
@@ -12,10 +16,14 @@ import { lastValueFrom } from 'rxjs'; // 🔥 IMPORTAR lastValueFrom
   styleUrls: ['./home.page.scss'],
   standalone: false,
 })
-export class HomePage implements OnInit {
+export class HomePage implements OnInit, AfterViewInit {
   usuario: string = '';
   infoForm: FormGroup;
   isLoading: boolean = false;
+  fotoBase64: string | null = null;
+
+  @ViewChild('nombreInput', { static: false }) nombreInput!: IonInput;
+  @ViewChild('apellidoInput', { static: false }) apellidoInput!: IonInput;
 
   constructor(
     private fb: FormBuilder,
@@ -30,36 +38,155 @@ export class HomePage implements OnInit {
       nivelEducacion: ['', Validators.required],
       fechaNacimiento: ['', Validators.required],
     });
-
-    console.log('HomePage inicializado - Formulario creado');
   }
 
   ngOnInit() {
-    console.log('ngOnInit() ejecutado - Suscribiendo a queryParams');
-    
     this.route.queryParams.subscribe(params => {
-      console.log('QueryParams recibidos:', params);
-      
       if (params && params['usuario']) {
         this.usuario = params['usuario'];
-        console.log('Usuario establecido:', this.usuario);
         this.cargarDatosUsuario();
-      } else {
-        console.warn('⚠️ No se recibió usuario en queryParams');
       }
     });
   }
 
-  // 🔥 AGREGAR ESTA FUNCIÓN A LA CLASE
+  ngAfterViewInit() {
+    // No hace falta bandera aquí
+  }
+
+  // 🔥 MÉTODOS PARA LA CÁMARA
+  async tomarFoto() {
+    try {
+      const imagen = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: true,
+        resultType: CameraResultType.Base64,
+        source: CameraSource.Camera,
+        promptLabelHeader: 'Tomar Foto',
+        promptLabelPhoto: 'Desde Galería',
+        promptLabelPicture: 'Tomar Foto'
+      });
+
+      this.fotoBase64 = `data:image/jpeg;base64,${imagen.base64String}`;
+      console.log('Foto tomada exitosamente');
+
+    } catch (error) {
+      console.error('Error al tomar foto:', error);
+      // El usuario canceló la operación, no es un error crítico
+    }
+  }
+
+  async seleccionarFoto() {
+    try {
+      const imagen = await Camera.getPhoto({
+        quality: 90,
+        allowEditing: true,
+        resultType: CameraResultType.Base64,
+        source: CameraSource.Photos
+      });
+
+      this.fotoBase64 = `data:image/jpeg;base64,${imagen.base64String}`;
+      console.log('Foto seleccionada exitosamente');
+
+    } catch (error) {
+      console.error('Error al seleccionar foto:', error);
+      // El usuario canceló la operación
+    }
+  }
+
+  eliminarFoto() {
+    this.fotoBase64 = null;
+    console.log('Foto eliminada');
+  }
+
+  async cargarDatosUsuario() {
+    try {
+      const usuarioData = await lastValueFrom(this.apiService.obtenerUsuario(this.usuario));
+      console.log('✅ Datos del usuario obtenidos:', usuarioData);
+      
+      this.infoForm.patchValue({
+        nombre: usuarioData.nombre || '',
+        apellido: usuarioData.apellido || '',
+        nivelEducacion: usuarioData.nivel_educacion || '',
+        fechaNacimiento: usuarioData.fecha_nacimiento || ''
+      });
+
+      // Cargar foto si existe
+      if (usuarioData.foto) {
+        this.fotoBase64 = usuarioData.foto;
+      }
+      
+    } catch (error) {
+      console.log('ℹ️ Usuario nuevo, sin datos previos');
+    }
+  }
+
+  async onSubmit() {
+    if (this.infoForm.valid && !this.isLoading) {
+      this.isLoading = true;
+      
+      const datos = this.infoForm.value;
+      
+      // Formatear fecha para la API
+      let fechaFormateada = datos.fechaNacimiento;
+      if (datos.fechaNacimiento && datos.fechaNacimiento.includes('T')) {
+        fechaFormateada = datos.fechaNacimiento.split('T')[0];
+      }
+      
+      const datosParaAPI = {
+        nombre: datos.nombre,
+        apellido: datos.apellido,
+        nivel_educacion: datos.nivelEducacion,
+        fecha_nacimiento: fechaFormateada,
+        foto: this.fotoBase64 // 🔥 INCLUIR LA FOTO
+      };
+
+      console.log('Datos a enviar al servidor (incluye foto):', {
+        ...datosParaAPI,
+        foto: this.fotoBase64 ? 'Sí (base64)' : 'No'
+      });
+
+      try {
+        const respuesta = await lastValueFrom(this.apiService.actualizarUsuario(this.usuario, datosParaAPI));
+        console.log('✅ Datos guardados exitosamente - Respuesta:', respuesta);
+
+        const alert = await this.alertController.create({
+          header: 'Datos guardados',
+          message: `Nombre: ${datos.nombre}\nApellido: ${datos.apellido}\n${this.fotoBase64 ? '✓ Foto incluida' : ''}`,
+          buttons: [{
+            text: 'OK',
+            handler: () => {
+              this.router.navigate(['/menu']);
+            }
+          }]
+        });
+        
+        await alert.present();
+        
+      } catch (error: any) {
+        console.error('❌ Error al guardar datos:', error);
+        const alert = await this.alertController.create({
+          header: 'Error',
+          message: 'No se pudieron guardar los datos.',
+          buttons: ['OK']
+        });
+        await alert.present();
+      } finally {
+        this.isLoading = false;
+      }
+    }
+  }
+
+  onCancelar() {
+    this.infoForm.reset();
+    this.fotoBase64 = null;
+  }
+
   formatFecha(fechaISO: string): string {
     if (!fechaISO) return '';
     
     try {
       const fecha = new Date(fechaISO);
-      
-      // Verificar si la fecha es válida
       if (isNaN(fecha.getTime())) {
-        console.warn('Fecha inválida:', fechaISO);
         return 'Fecha inválida';
       }
       
@@ -71,91 +198,7 @@ export class HomePage implements OnInit {
       
       return fecha.toLocaleDateString('es-ES', opciones);
     } catch (error) {
-      console.error('Error formateando fecha:', error, 'Fecha original:', fechaISO);
-      return fechaISO; // Retorna la fecha original si hay error
+      return fechaISO;
     }
-  }
-
-  async cargarDatosUsuario() {
-  console.log('cargarDatosUsuario() llamado para usuario:', this.usuario);
-  
-  try {
-    // 🔥 CAMBIAR: usar lastValueFrom en lugar de toPromise
-    const usuarioData = await lastValueFrom(this.apiService.obtenerUsuario(this.usuario));
-    console.log('✅ Datos del usuario obtenidos:', usuarioData);
-    
-    this.infoForm.patchValue({
-      nombre: usuarioData.nombre || '',
-      apellido: usuarioData.apellido || '',
-      nivelEducacion: usuarioData.nivel_educacion || '',
-      fechaNacimiento: usuarioData.fecha_nacimiento || ''
-    });
-    
-  } catch (error) {
-    console.log('ℹ️ Usuario nuevo o error al cargar datos:', error);
-  }
-}
-
-async onSubmit() {
-  if (this.infoForm.valid && !this.isLoading) {
-    this.isLoading = true;
-    
-    const datos = this.infoForm.value;
-    let fechaFormateada = datos.fechaNacimiento;
-    if (datos.fechaNacimiento && datos.fechaNacimiento.includes('T')) {
-      fechaFormateada = datos.fechaNacimiento.split('T')[0];
-    }
-    
-    const datosParaAPI = {
-      nombre: datos.nombre,
-      apellido: datos.apellido,
-      nivel_educacion: datos.nivelEducacion,
-      fecha_nacimiento: fechaFormateada
-    };
-
-    try {
-      // 🔥 CAMBIAR: usar lastValueFrom en lugar de toPromise
-      const respuesta = await lastValueFrom(this.apiService.actualizarUsuario(this.usuario, datosParaAPI));
-      console.log('✅ Datos guardados exitosamente - Respuesta:', respuesta);
-
-        const alert = await this.alertController.create({
-          header: 'Datos guardados',
-          message: `Nombre: ${datos.nombre}\nApellido: ${datos.apellido}\nFecha de nacimiento: ${this.formatFecha(datos.fechaNacimiento)}`,
-          buttons: [{
-            text: 'OK',
-            handler: () => {
-              console.log('Navegando a /menu');
-              this.router.navigate(['/menu']);
-            }
-          }]
-        });
-        
-        await alert.present();
-        
-      } catch (error: any) {
-        console.error('❌ Error al guardar datos:', error);
-        console.error('Detalles del error:', error.error);
-        
-        const alert = await this.alertController.create({
-          header: 'Error',
-          message: 'No se pudieron guardar los datos. Verifica tu conexión.',
-          buttons: ['OK']
-        });
-        await alert.present();
-      } finally {
-        this.isLoading = false;
-        console.log('Proceso de guardado finalizado - isLoading:', this.isLoading);
-      }
-    } else {
-      console.warn('⚠️ Formulario inválido - No se puede guardar');
-      console.log('Estado del formulario:', this.infoForm.status);
-      console.log('Errores del formulario:', this.infoForm.errors);
-    }
-  }
-
-  onCancelar() {
-    console.log('onCancelar() llamado - Reiniciando formulario');
-    this.infoForm.reset();
-    console.log('Formulario reiniciado - Valores actuales:', this.infoForm.value);
   }
 }

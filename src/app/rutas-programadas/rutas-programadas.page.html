@@ -1,0 +1,61 @@
+<ion-header [translucent]="true" class="skate-theme">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/menu" text="Volver"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      <img src="assets/iconopatines.png" alt="logo" style="height: 24px; vertical-align: middle; margin-right: 8px;">
+      Rutas Programadas
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <h2>Nuestras Rutas de Patinaje</h2>
+  <p class="description">Selecciona una ruta para ver su ubicación en el mapa</p>
+
+  <!-- Lista de rutas -->
+  <ion-list>
+    <ion-item 
+      *ngFor="let ruta of rutas" 
+      button 
+      (click)="seleccionarRuta(ruta)"
+      [class.selected]="rutaSeleccionada?.id === ruta.id"
+      detail="true"
+    >
+      <ion-label>
+        <h3>{{ ruta.nombre }}</h3>
+        <p>{{ ruta.dia }} - {{ ruta.hora }}</p>
+        <p><strong>Nivel:</strong> {{ ruta.nivel }}</p>
+        <p><strong>Ubicación:</strong> {{ ruta.ubicacion }}</p>
+      </ion-label>
+      <ion-badge [color]="getColorByNivel(ruta.nivel)" slot="end">
+        {{ ruta.nivel }}
+      </ion-badge>
+    </ion-item>
+  </ion-list>
+
+  <!-- Mapa Leaflet -->
+  <div class="map-container">
+    <div id="map" class="map"></div>
+  </div>
+
+  <!-- Información de la ruta seleccionada -->
+  <ion-card *ngIf="rutaSeleccionada" color="light">
+    <ion-card-header>
+      <ion-card-title>{{ rutaSeleccionada.nombre }}</ion-card-title>
+    </ion-card-header>
+    <ion-card-content>
+      <p><strong>Día:</strong> {{ rutaSeleccionada.dia }}</p>
+      <p><strong>Hora:</strong> {{ rutaSeleccionada.hora }}</p>
+      <p><strong>Nivel:</strong> {{ rutaSeleccionada.nivel }}</p>
+      <p><strong>Ubicación:</strong> {{ rutaSeleccionada.ubicacion }}</p>
+      <p><strong>Punto de encuentro:</strong> {{ rutaSeleccionada.puntoEncuentro }}</p>
+      
+      <ion-button expand="block" color="primary" (click)="obtenerUbicacionActual()">
+        <ion-icon name="navigate" slot="start"></ion-icon>
+        Ver mi ubicación actual
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
+</ion-content>

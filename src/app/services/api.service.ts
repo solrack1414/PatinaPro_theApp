@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -9,11 +10,12 @@ import { catchError } from 'rxjs/operators';
 export class ApiService {
   // Para Android Studio usar: 'http://10.0.2.2:8000'
   // Para navegador usar: 'http://localhost:8000'
-  private apiUrl = 'http://localhost:8000';
+  private apiUrl = 'http://10.0.2.2:8000';
 
   constructor(private http: HttpClient) { 
-    console.log('ApiService inicializado - URL base:', this.apiUrl);
+    console.log('🔧 ApiService URL (Android):', this.apiUrl);
   }
+
 
   // Métodos para usuarios
   crearUsuario(usuario: any): Observable<any> {

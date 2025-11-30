@@ -28,6 +28,10 @@ const routes: Routes = [
     path: 'informacion-personal',
     component: InformacionPersonalPage
   },
+  {
+    path: 'rutas-programadas',
+    loadChildren: () => import('./rutas-programadas/rutas-programadas.module').then( m => m.RutasProgramadasPageModule)
+  }
 ];
 
 @NgModule({

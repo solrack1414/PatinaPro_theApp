@@ -1,9 +1,24 @@
-import type { CapacitorConfig } from '@capacitor/cli';
+import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
+  appId: 'com.example.patinapro',
   appName: 'PatinaPRO',
-  webDir: 'www'
+  webDir: 'www',
+  server: {
+    androidScheme: 'http',
+    cleartext: true
+  },
+  android: {
+    allowMixedContent: true  // ✅ Permitir contenido mixto
+  },
+  plugins: {
+    Camera: {
+      enable: true
+    },
+    Geolocation: {
+      enableHighAccuracy: true
+    }
+  }
 };
 
 export default config;
