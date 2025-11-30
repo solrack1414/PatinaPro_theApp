@@ -1,0 +1,155 @@
+<ion-header [translucent]="true" class="skate-theme">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/menu" text="Volver"></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      <img src="assets/iconopatines.png" alt="logo" style="height: 24px; vertical-align: middle; margin-right: 8px;">
+      Información Personal
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="spinner-container">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p style="text-align: center; margin-top: 10px; color: #333; font-weight: 500;">Cargando información...</p>
+    </div>
+  </div>
+
+  <!-- 🔥 CAMBIAR: usuario por usuarioData -->
+  <div *ngIf="usuarioData" class="user-info-container">
+    
+    <!-- Información del Usuario -->
+    <ion-card color="light">
+      <ion-card-header>
+        <ion-card-title class="ion-text-center">Información Personal</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <!-- 🔥 CAMBIAR: onSubmit por actualizarInformacion -->
+        <form [formGroup]="infoForm" (ngSubmit)="actualizarInformacion()">
+          <ion-item>
+            <ion-label position="floating">Usuario</ion-label>
+            <ion-input formControlName="usuario" readonly></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating">Correo electrónico</ion-label>
+            <ion-input type="email" formControlName="correo"></ion-input>
+          </ion-item>
+          <ion-note color="danger" *ngIf="correo.invalid && correo.touched">
+            Debe ingresar un correo válido.
+          </ion-note>
+
+          <ion-item>
+            <ion-label position="floating">Nombre</ion-label>
+            <ion-input formControlName="nombre"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating">Apellido</ion-label>
+            <ion-input formControlName="apellido"></ion-input>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating">Nivel de patinaje</ion-label>
+            <ion-select formControlName="nivelEducacion">
+              <ion-select-option value="Principiante">Principiante</ion-select-option>
+              <ion-select-option value="Intermedio">Intermedio</ion-select-option>
+              <ion-select-option value="Avanzado">Avanzado</ion-select-option>
+              <ion-select-option value="Profesional">Profesional</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item>
+            <ion-label position="floating">Fecha de nacimiento</ion-label>
+            <ion-datetime 
+              formControlName="fechaNacimiento" 
+              placeholder="Seleccione fecha"
+              presentation="date"
+              displayFormat="DD MMMM YYYY"
+            ></ion-datetime>
+          </ion-item>
+
+          <!-- Mostrar fecha seleccionada -->
+          <div *ngIf="infoForm.get('fechaNacimiento')?.value" class="fecha-seleccionada">
+            <ion-text color="primary">
+              <p><strong>Fecha seleccionada:</strong> {{ formatFecha(infoForm.get('fechaNacimiento')?.value) }}</p>
+            </ion-text>
+          </div>
+
+          <ion-button expand="block" color="primary" type="submit" [disabled]="infoForm.invalid || isLoading">
+            <span *ngIf="!isLoading">Actualizar Información</span>
+            <ion-spinner *ngIf="isLoading" name="crescent" style="width: 20px; height: 20px;"></ion-spinner>
+          </ion-button>
+        </form>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Cambiar Contraseña -->
+    <ion-card color="light">
+      <ion-card-header>
+        <ion-card-title class="ion-text-center">Cambiar Contraseña</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <!-- 🔥 CAMBIAR: onPasswordSubmit por cambiarPassword -->
+        <form [formGroup]="passwordForm" (ngSubmit)="cambiarPassword()">
+          <ion-item>
+            <ion-label position="floating">Nueva Contraseña</ion-label>
+            <ion-input 
+              type="password"
+              formControlName="nuevaPassword"
+              inputmode="numeric"
+              maxlength="4"
+              placeholder="****"
+            ></ion-input>
+          </ion-item>
+          <ion-note color="danger" *ngIf="nuevaPassword.invalid && nuevaPassword.touched">
+            La contraseña debe tener 4 dígitos numéricos.
+          </ion-note>
+
+          <ion-item>
+            <ion-label position="floating">Confirmar Nueva Contraseña</ion-label>
+            <ion-input 
+              type="password"
+              formControlName="confirmarPassword"
+              inputmode="numeric"
+              maxlength="4"
+              placeholder="****"
+            ></ion-input>
+          </ion-item>
+          <ion-note color="danger" *ngIf="confirmarPassword.invalid && confirmarPassword.touched">
+            Las contraseñas deben coincidir.
+          </ion-note>
+
+          <ion-button expand="block" color="secondary" type="submit" [disabled]="passwordForm.invalid || isChangingPassword">
+            <span *ngIf="!isChangingPassword">Cambiar Contraseña</span>
+            <ion-spinner *ngIf="isChangingPassword" name="crescent" style="width: 20px; height: 20px;"></ion-spinner>
+          </ion-button>
+        </form>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Acciones de Cuenta -->
+    <ion-card color="light">
+      <ion-card-header>
+        <ion-card-title class="ion-text-center" color="danger">Acciones de Cuenta</ion-card-title>
+      </ion-card-header>
+
+      <ion-card-content>
+        <ion-button expand="block" color="warning" (click)="cerrarSesion()" [disabled]="isLoading">
+          Cerrar Sesión
+        </ion-button>
+
+        <ion-button expand="block" color="danger" (click)="confirmarEliminarCuenta()" [disabled]="isLoading">
+          Eliminar Cuenta
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+</ion-content>

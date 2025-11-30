@@ -48,8 +48,16 @@
             formControlName="fechaNacimiento" 
             placeholder="Seleccione fecha"
             presentation="date"
+            displayFormat="DD MMMM YYYY"
           ></ion-datetime>
         </ion-item>
+
+        <!-- 🔥 NUEVO: Mostrar fecha seleccionada -->
+        <div *ngIf="infoForm.get('fechaNacimiento')?.value" class="fecha-seleccionada">
+          <ion-text color="primary">
+            <p><strong>Fecha seleccionada:</strong> {{ formatFecha(infoForm.get('fechaNacimiento')?.value) }}</p>
+          </ion-text>
+        </div>
       </ion-card-content>
     </ion-card>
 

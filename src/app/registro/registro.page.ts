@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 import { AlertController } from '@ionic/angular';
 import { Router } from '@angular/router';
+import { ApiService } from '../services/api.service';
+import { lastValueFrom } from 'rxjs'; // 🔥 IMPORTAR lastValueFrom
 
 @Component({
   selector: 'app-registro',
@@ -16,7 +18,8 @@ export class RegistroPage {
   constructor(
     private fb: FormBuilder,
     private alertCtrl: AlertController,
-    private router: Router
+    private router: Router,
+    private apiService: ApiService
   ) {
     this.registroForm = this.fb.group({
       usuario: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9]{3,8}$/)]],
@@ -24,6 +27,8 @@ export class RegistroPage {
       confirmPassword: ['', Validators.required],
       correo: ['', [Validators.required, Validators.email]],
     }, { validators: this.passwordMatchValidator });
+
+    console.log('RegistroPage inicializado - Formulario creado');
   }
 
   get usuario() {
@@ -45,44 +50,45 @@ export class RegistroPage {
   passwordMatchValidator(control: AbstractControl) {
     const password = control.get('password')?.value;
     const confirmPassword = control.get('confirmPassword')?.value;
-    return password === confirmPassword ? null : { mismatch: true };
+    const isValid = password === confirmPassword;
+    
+    console.log('Validación de contraseñas - Coinciden:', isValid);
+    return isValid ? null : { mismatch: true };
   }
 
   async validarRegistro() {
     if (this.registroForm.valid && !this.isLoading) {
-      
-      if (this.password.value !== this.confirmPassword.value) {
-        const alert = await this.alertCtrl.create({
-          header: 'Error',
-          message: 'Las contraseñas no coinciden.',
-          buttons: ['OK'],
-        });
-        await alert.present();
-        return;
-      }
-
       this.isLoading = true;
 
-      // Simular validación por 2 segundos
-      setTimeout(async () => {
+      const usuarioData = {
+        usuario: this.usuario.value,
+        password: this.password.value,
+        correo: this.correo.value
+      };
+
+      try {
+        // 🔥 CAMBIAR: usar lastValueFrom en lugar de toPromise
+        await lastValueFrom(this.apiService.crearUsuario(usuarioData));
+        
         const alert = await this.alertCtrl.create({
           header: 'Registro exitoso',
-          message: '¡Cuenta creada con éxito!',
+          message: '¡Cuenta creada con éxito! Ahora puedes iniciar sesión.',
           buttons: ['OK'],
         });
         await alert.present();
 
-        this.router.navigate(['/home']);
+        this.router.navigate(['/login']);
+        
+      } catch (error: any) {
+        const alert = await this.alertCtrl.create({
+          header: 'Error en registro',
+          message: error.error?.detail || 'Error al crear usuario',
+          buttons: ['OK'],
+        });
+        await alert.present();
+      } finally {
         this.isLoading = false;
-      }, 2000);
-      
-    } else {
-      const alert = await this.alertCtrl.create({
-        header: 'Formulario incompleto',
-        message: 'Por favor, completa todos los campos correctamente.',
-        buttons: ['OK'],
-      });
-      await alert.present();
+      }
     }
   }
 }
